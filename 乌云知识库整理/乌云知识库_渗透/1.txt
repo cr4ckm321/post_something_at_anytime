@@ -1,0 +1,3 @@
+psr.exe /start /gui 0 /output C:\test\capture.zip;
+Start-Sleep -s 10;
+psr.exe /stop;
