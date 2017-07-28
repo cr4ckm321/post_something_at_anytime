@@ -1,0 +1,11 @@
+
+题目告知:
+Please make sure you have installed .net framework 9.9!
+
+Make sure you are in the region of England and browsing this site with Internet Explorer
+
+必须要用.net framework 9.9!
+IE浏览器，还必须在英国，所以可以构造请求头
+
+User-Agent: MSIE 6.0; .NET CLR 9.9 
+Accept-Language: q=0.5,en-gb

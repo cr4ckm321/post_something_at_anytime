@@ -1,0 +1,19 @@
+现在来说一说zsh和bash在配置环境变量时候的不同点：
+1.在bash中：
+$ vi ~/.bashprofile
+进入可编辑状态
+$ i
+以添加JAVAHOME为例，在文档最后，添加:
+JAVAHOME=/System/Library/Frameworks/JavaVM.framework/Versions/1.7.40/Home
+export PATH="$JAVAHOME/bin:$PATH"
+按esc退出编辑状态
+$wq保持退出
+倒入环境变量配置文件
+$ source .bash_profile
+
+2.在zsh中按照上面的流程 只能设置临时的环境变量，如果退出终端，又将恢复系统默认的环境变量，
+那怎样在zsh中永久设置系统环境变量呢？
+zsh在启动的时候 首先会读取~/.zshrc这个配置文件，
+
+由于每次zsh启动都会读取这个配置文件，所以我们可以把环境变量的配置信息放到这个配置文件中，这样每次启动zsh的时候，就会执行一次环境变量配置信息。
+即export PATH=$JAVAHOME/bin:$PATH直接放到~/.zshrc文件中

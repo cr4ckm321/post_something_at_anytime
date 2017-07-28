@@ -1,0 +1,21 @@
+FLASE wp
+//by ch3rry
+
+右键查看源代码：发现源码
+if (isset($_GET['name']) and isset($_GET['password'])) {
+    if ($_GET['name'] == $_GET['password'])
+        echo '<p>Your password can not be your name!</p>';
+    else if (sha1($_GET['name']) === sha1($_GET['password']))  <------
+      die('Flag: '.$flag);
+    else
+        echo '<p>Invalid password.</p>';
+}
+else{
+	echo '<p>Login first!</p>';
+
+
+
+sha1($_GET['name']) === sha1($_GET['password'])  恒等
+php弱类型  构造数组即可绕过
+
+相关知识 ：http://ch3rry.tk (浅谈PHP弱类型安全之CTF)

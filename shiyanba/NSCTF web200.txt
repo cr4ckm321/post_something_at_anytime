@@ -1,0 +1,35 @@
+strrev()用于反转字符串。
+
+
+-------------------------------------------- 1.py
+a="a1zLbgQsCESEIqRLwuQAyMwLyq2L5VwBxqGA3RQAyumZ0tmMvSGM2ZwB4tws".encode('rot13')[::-1].decode('base64')
+
+print "".join([chr(ord(i)-1) for i in a])[::-1]
+
+
+
+
+----------------------------------------------------------------------------------------------2.py
+
+
+
+
+
+import sys,base64
+from string import maketrans
+def rot13(data):
+	intable = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+	outtable = 'NOPQRSTUVWXYZABCDEFGHIJKLMnopqrstuvwxyzabcdefghijklm'
+	table = maketrans(intable,outtable)
+	return data.translate(table)
+if __name__ == '__main__':
+	data = sys.argv[1]
+	data = rot13(data)
+	data = data[::-1]
+	data = base64.b64decode(data)
+	result=''
+	for i in data:
+		result += chr(ord(i)-1)
+	result = result[::-1]
+	print result
+

@@ -1,0 +1,31 @@
+PHP大法好 wp
+// by ch3rry
+
+
+
+有备份文件：index.php.txt 直接打开：
+<?php
+if(eregi("hackerDJ",$_GET[id])) {       <------   重点1
+  echo("<p>not allowed!</p>");
+  exit();
+}
+
+$_GET[id] = urldecode($_GET[id]);       <------   重点2
+if($_GET[id] == "hackerDJ")
+{
+  echo "<p>Access granted!</p>";
+  echo "<p>flag: *****************} </p>";
+}
+?>
+
+int eregi()函数   字符串比对解析，与大小写无关,如果匹配成功返回1,否则,则返回0
+ 
+重点1,匹配提交的数据是否等价于hackerDJ
+
+重点2,urldecode()解码后的数据是否等价于hackerDJ
+
+浏览器提交数据，会自动解码一次也就是说%68%61%63%6b%65%72%44%4a会解码为hackerDJ
+所以重点1处，返回0，失败
+
+所以双重编码即可绕过，把%编码为%25即可:
+%2568%2561%2563%256b%2565%2572%2544%254a
