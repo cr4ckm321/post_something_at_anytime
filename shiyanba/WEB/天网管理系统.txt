@@ -1,4 +1,4 @@
-打开网址后，里面用户名和密码都是admin，点击“登入系统”也没用。做web的php题如果知道源代码就事半功倍，先右键查看源代码，得到
+﻿打开网址后，里面用户名和密码都是admin，点击“登入系统”也没用。做web的php题如果知道源代码就事半功倍，先右键查看源代码，得到
 <!-- $test=$_GET['username']; $test=md5($test); if($test=='0') -->
 
 这里要求我们输入一个字符串，经过md5后等于0，这是考验php弱类型。这里我提供4个都可以通过的值：
@@ -30,5 +30,7 @@ if(true=="pcat"){
 ?>
 
 bool类型的true跟任意字符串可以弱类型相等，而当代码中存在unserialize或者json_decode的时候，我们可以构造bool类型，来达到欺骗。现在我们要的是一个数组，2个元素，分别是user和pass，而且值都是bool类型的true，于是我们得到
+240610708、QNKCDZO、aabg7XSs、aabC9RqS
 a:2:{s:4:"user";b:1;s:4:"pass";b:1;}
+[user:1,pass:1]
 （a代表array，s代表string，b代表bool，而数字代表个数/长度） 
